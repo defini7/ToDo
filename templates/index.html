@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Main
+{% endblock %}
+
+{% block main %}
+    <form action="/" method="POST">
+        <div class="d-flex justify-content-center">
+            <div class="form-outline mr-2">
+                <input type="text" class="form-control" name="new_task">
+            </div>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+    </form>
+
+    {% if tasks %}
+
+        <div id="tasks">
+
+            {% for task in tasks %}
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="task_{{ task.id }}">
+                    <label class="form-check-label" for="task_{{ task.id }}">{{ task.task }}</label>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <button type="button" class="btn btn-danger" onclick="sendToDelete()">Delete Selected</button>
+
+    {% endif %}
+
+    <script>
+        function sendToDelete() {
+            const taskDivs = document.querySelectorAll("div[class=\"form-check\"]");
+
+            let ids = [];
+
+            taskDivs.forEach(div => {
+                const input = div.getElementsByTagName("input")[0];
+
+                if (input.checked) {
+                    const id = input.getAttribute("id");
+                    ids.push(id.substring(id.indexOf("_") + 1));
+                }
+
+            });
+
+            fetch("{{ url_for('delete.delete') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ids)
+            }).then(_ => { window.location = "/"; });
+        }
+    </script>
+
+{% endblock %}
