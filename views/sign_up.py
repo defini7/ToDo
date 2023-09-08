@@ -1,20 +1,20 @@
-from blueprint_common import *
+from .common import *
 
 from flask import render_template, flash
 
 from werkzeug.security import generate_password_hash
 from markupsafe import escape
 
-b_sign_up = Blueprint("sign_up", __name__, static_folder="/static", template_folder="/templates")
-
-@b_sign_up.route("/", methods=["GET", "POST"])
-def sign_up():
+class SignUpView(views.MethodView):
     
-    def flash_redirect(message):
-        flash(message, "error")
+    def get(self):
         return render_template("sign_up.html")
     
-    if request.method == "POST":
+    def post(self):
+        def flash_redirect(message):
+            flash(message, "error")
+            return self.get()
+        
         username = request.form.get("username")
         
         if not username:
@@ -40,6 +40,3 @@ def sign_up():
             get_db().commit()
             
             return redirect(url_for("index"))
-            
-    else:
-        return render_template("sign_up.html")

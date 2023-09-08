@@ -1,21 +1,20 @@
-from blueprint_common import *
+from .common import *
 from flask import flash, render_template
 
 from werkzeug.security import check_password_hash
 from markupsafe import escape
 
-b_sign_in = Blueprint("sign_in", __name__, static_folder="/static", template_folder="/templates")
-
-@b_sign_in.route("/", methods=["GET", "POST"])
-def sign_in():
+class SignInView(views.MethodView):
     
-    def flash_redirect(message):
-        flash(message, "error")
+    def get(self):
         return render_template("sign_in.html")
     
-    session.clear()
-    
-    if request.method == "POST":
+    def post(self):
+        def flash_redirect(message):
+            flash(message, "error")
+            return self.get()
+        
+        session.clear()
         
         username = request.form.get("username")
         password = request.form.get("password")
@@ -37,5 +36,4 @@ def sign_in():
         session["user_id"] = id
         
         return redirect(url_for("index"))
-    
-    return render_template("sign_in.html")
+        
